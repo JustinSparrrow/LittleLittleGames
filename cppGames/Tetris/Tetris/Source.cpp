@@ -1,47 +1,18 @@
-#include <Windows.h> //°üº¬ÁËÒ»Ð©ÓÃÓÚWindows²Ù×÷ÏµÍ³µÄº¯ÊýºÍÊý¾ÝÀàÐÍµÄÉùÃ÷¡£Õâ¸öÍ·ÎÄ¼þÌá¹©ÁËÐí¶àÓë´°¿Ú¡¢ÏûÏ¢´¦Àí¡¢Í¼ÐÎÉè±¸½Ó¿ÚµÈÏà¹ØµÄº¯ÊýºÍ½á¹¹Ìå£¬¿ÉÒÔÓÃÓÚ¿ª·¢WindowsÆ½Ì¨ÉÏµÄÓ¦ÓÃ³ÌÐò¡£
-#include <thread>	//Ïß³Ì¿â
+#include <Windows.h> //åŒ…å«äº†ä¸€äº›ç”¨äºŽWindowsæ“ä½œç³»ç»Ÿçš„å‡½æ•°å’Œæ•°æ®ç±»åž‹çš„å£°æ˜Žã€‚è¿™ä¸ªå¤´æ–‡ä»¶æä¾›äº†è®¸å¤šä¸Žçª—å£ã€æ¶ˆæ¯å¤„ç†ã€å›¾å½¢è®¾å¤‡æŽ¥å£ç­‰ç›¸å…³çš„å‡½æ•°å’Œç»“æž„ä½“ï¼Œå¯ä»¥ç”¨äºŽå¼€å‘Windowså¹³å°ä¸Šçš„åº”ç”¨ç¨‹åºã€‚
+#include <thread>	//çº¿ç¨‹åº“
 #include <vector>
 #include <iostream>
 using namespace std;
 
-/* ¶íÂÞË¹·½¿é£¨²Ö¿âÖÐÐ´½ømarkdownÎÄ¼þÄÚ£©
-* 1.¶íÂÞË¹·½¿é¹¹½¨£¨Êý×é£©
-*	¶íÂÞË¹·½¿éÓÐ7ÖÖÐÎ×´£¬½¨Á¢Ò»¸öÊý×éÈ¥´æ·Å¡£´Ë´¦Ê¹ÓÃÁË¿í×Ö·û´®µÄÊý×é£¬ÑÏ¸ñÒâÒåÉÏ²¢²»ÊÇ¶þÎ¬Êý×é£¬µ«ÊÇÐèÒª¿ÉÒÔÂú×ã¶þÎ¬Êý×éµÄÓï·¨
-*	Óöµ½µÄÎÊÌâ£º
-*   £¨1£©Ã¿¸ö¶íÂÞË¹·½¿éÔÚ4*4µÄ·½¸ñÖÐ¶¼ÄÜÓÐÐí¶àÖÖ²»Í¬µÄ´æÔÚ·½Ê½£¬Èç¹ûÎªÃ¿Ò»ÖÖ¶¼´´½¨Ôò»¨ÏúÌ«´ó£»
-*	£¨2£©È·¶¨¶íÂÞË¹·½¿éÎ»ÖÃÊ±£¬²»Í¬µÄ°Ú·ÅÎ»ÖÃÓÐ²»Í¬µÄË÷Òý£¬Ë÷Òý¹ýÓÚËæ»ú¡£ÇÒ¶íÂÞË¹·½¿éÖ§³ÖÐý×ª£¬Ê¹µÃÈ·¶¨Ë÷Òý¸ü¼ÓÀ§ÄÑ
-*   ½â¾ö·½·¨£º
-*   £¨1£©×÷ÎªÒ»¸ö4*4µÄ·½¸ñ£¬´Ó×óÉÏÖÁÓÒÏÂÒÀ´ÎÌîÈëµÝÔöÊý×Ö£¬¿ÉÒÔµÃµ½a[x][y] = y*w£¨±ß¿ò³¤£©+x£»
-*   £¨2£©Ðý×ªÊ±¸ù¾ÝÃ¿¸ö·½¸ñÖÐµÄÖµÍÆ²â±í´ïÊ½¼´¿É£¨Ë³Ê±Õë£©£º
-*		a.0¡ã£ºi = y * w + x£»
-*		b.90¡ã£ºi = 12 + y -£¨x * 4£©
-*		c.180¡ã£ºi = 15 -£¨y * 4£©- x
-*		d.270¡ã£ºi = 3 + y +£¨x * 4£©
-*		´ËÊ±Ö»ÐèÒª·ÖÅäÒ»¸öÑùÊ½µÄ¶íÂÞË¹·½¿é¾Í¿ÉÒÔ±íÊ¾³öÆäËûÐÎÊ½µÄ±äÖÖ¡£
-* 3.³¡¾°¹¹½¨
-*	±ÈÈü³¡µØ½«ÓÉÁ½¸ö±äÁ¿³¡¿íºÍ³¡¸ß£¬¹¹³ÉÓÎÏ·ÇøÓòÓë±ß¿òÇøÓò
-*	**<Windows.h>µÄÊ¹ÓÃ**£¬ÓÃÀ´¼òµ¥ÏÔÊ¾ÓÎÏ·½çÃæ£¬Ö®ºó¿´ÊÇ·ñ¿ÉÒÔ¸Ä³ÉÊ¹ÓÃQT
-* 4.ÓÎÏ·Ñ­»·
-*	ÓÎÏ·Ñ­»·ÊÇÓÎÏ·ÒýÇæÖÐ×îÖØÒªµÄ²¿·Ö£¬ÊÇÏÖÔÚ·¢ÉúµÄÒ»ÇÐµÄË³Ðò¡£
-*	¶ÔÓÚ¶íÂÞË¹·½¿éÀ´Ëµ²»ÐèÒª´ó¹æÄ£µÄÊÂ¼þÇý¶¯Ó¦ÓÃ£¬Í¨³£°üÀ¨Ò»Ð©´¦Àí¶¨Ê±µÄÔªËØ¡¢ÓÃ»§ÊäÈë¡¢¸üÐÂÓÎÏ·Âß¼­È»ºó°ÑËü»­µ½ÆÁÄ»ÉÏ
-*	ÓÎÏ·½çÃæµÄËùÓÐ½¨Á¢ÔÚÓÎÏ·Ñ­»·Ö®ÉÏ
-* 5.ÓÎÏ·¿ª·¢²½Öè
-*	£¨1£©Game Timing£¨ÓÎÏ·¼ÆÊ±£©£ºÕâÒ»²½ÖèÓÃÓÚ¿××ÓÓÎÏ·µÄÊ±¼äÁ÷ÊÅ¡£ËüÍ¨³£°üÀ¨¼ÆËãÖ¡ÂÊ£¨FPS£©ºÍ¸üÐÂÓÎÏ·µÄÊ±¼ä´Á£¬ÒÔÈ·±£ÓÎÏ·ÔÚ²»Í¬µÄÉè±¸ÉÏÒÔÏàÍ¬µÄËÙ¶ÈÔËÐÐ
-*	£¨2£©Input£¨ÊäÈë£©£ºÕâÒ»²½ÖèÓÎÏ·¼ì²âÍæ¼ÒµÄÊäÈë£¬ÀýÈç¼üÅÌ°´¼ü¡¢Êó±êµã»÷»òÆÁÄ»´¥ÃþµÈ²Ù×÷¡£ÓÎÏ·»á¸ù¾ÝÍæ¼ÒµÄÊäÈëÀ´¾ö¶¨ÏÂÒ»²½µÄ¶¯×÷»ò²Ù×÷
-*	£¨3£©Game Logic£¨ÓÎÏ·Âß¼­£©£ºÔÚÕâÒ»²½ÖèÖÐ£¬ÓÎÏ·»áÖ´ÐÐÓÎÏ·µÄÂß¼­ºÍ¹æÔò£¬Õâ°üÀ¨´¦ÀíÅö×²¼ì²â¡¢¸üÐÂÓÎÏ·×´Ì¬¡¢¼ÆËã·ÖÊý¡¢´¦ÀíÓÎÏ·Ê±¼äµÈ¡£ÓÎÏ·Âß¼­¾ö¶¨ÁËÓÎÏ·µÄÐÐÎªºÍÍæ·¨
-*	£¨4£©Render Output£¨äÖÈ¾Êä³ö£©£ºÔÚÕâÒ»²½ÖèÖÐ£¬ÓÎÏ·»á½«ÓÎÏ·³¡¾°ºÍ¶ÔÏóäÖÈ¾µ½ÆÁÄ»ÉÏ£¬ÒÔÕ¹Ê¾¸øÍæ¼Ò¡£Õâ°üÀ¨»æÖÆÓÎÏ·½çÃæ¡¢½ÇÉ«¡¢±³¾°¡¢ÌØÐ§µÈ¡£äÖÈ¾Êä³öÊ¹Íæ¼ÒÄÜ¹»¿´µ½ÓÎÏ·µÄÊÓ¾õÐ§¹û
-*	ÕâËÄ¸ö²½ÖèÍ¨³£ÔÚÓÎÏ·Ñ­»·ÖÐÑ­»·Ö´ÐÐ£¬ÒÔÊµÏÖÓÎÏ·µÄ³ÖÐøÔËÐÐºÍ½»»¥ÐÔ¡£ËüÃÇ¹²Í¬¹¹³ÉÁËÓÎÏ·µÄ»ù±¾¿ò¼Ü£¬Ê¹ÓÎÏ·ÄÜ¹»¸ù¾ÝÍæ¼ÒµÄÊäÈëºÍÓÎÏ·Âß¼­½øÐÐ¸üÐÂºÍÕ¹Ê¾
-*/
-
-wstring tetromino[7];	//wstring±íÊ¾¿í×Ö·û×Ö·û´®£¬¿ÉÒÔ´æ´¢ºÍ´¦ÀíUnicode×Ö·û£¬Êä³öÊ±ÒªÓÃwcout
-int nFieldWidth = 12;	//³¡¿í
-int nFieldHeight = 18;	//³¡¸ß
-unsigned char* pField = nullptr;	//ÎÞ·ûºÅ×Ö·ûÖ¸Õë±äÁ¿£¬¿ÉÒÔÓÃÀ´Ö¸ÏòÒ»¸öÎÞ·ûºÅ×Ö·ûÊý×é£¬ÓÃÓÚ±íÊ¾ÓÎÏ·³¡µØµÄ×´Ì¬
+wstring tetromino[7];	//wstringè¡¨ç¤ºå®½å­—ç¬¦å­—ç¬¦ä¸²ï¼Œå¯ä»¥å­˜å‚¨å’Œå¤„ç†Unicodeå­—ç¬¦ï¼Œè¾“å‡ºæ—¶è¦ç”¨wcout
+int nFieldWidth = 12;	//åœºå®½
+int nFieldHeight = 18;	//åœºé«˜
+unsigned char* pField = nullptr;	//æ— ç¬¦å·å­—ç¬¦æŒ‡é’ˆå˜é‡ï¼Œå¯ä»¥ç”¨æ¥æŒ‡å‘ä¸€ä¸ªæ— ç¬¦å·å­—ç¬¦æ•°ç»„ï¼Œç”¨äºŽè¡¨ç¤ºæ¸¸æˆåœºåœ°çš„çŠ¶æ€
 
 int nScreenWidth = 80;	// Console Screen Size X
 int nScreenHeight = 30;	// Console Screen Size Y
 
-//Ðý×ªº¯Êý
+//æ—‹è½¬å‡½æ•°
 int Rotate(int px, int py, int r) {
 	switch (r % 4)
 	{
@@ -55,7 +26,7 @@ int Rotate(int px, int py, int r) {
 	return 0;
 }
 
-//µ±Ç°·½¿éÊÇ·ñ¿ÉÒÔ·ÅÖÃÔÚÖ¸¶¨Î»ÖÃ¡£²ÎÊý£º·½¿éÀàÐÍ¡¢·½¿éµÄÐý×ª×´Ì¬¡¢·½¿éµÄÎ»ÖÃ×ø±ê
+//å½“å‰æ–¹å—æ˜¯å¦å¯ä»¥æ”¾ç½®åœ¨æŒ‡å®šä½ç½®ã€‚å‚æ•°ï¼šæ–¹å—ç±»åž‹ã€æ–¹å—çš„æ—‹è½¬çŠ¶æ€ã€æ–¹å—çš„ä½ç½®åæ ‡
 bool DoesPieceFit(int nTetromino, int nRotation, int nPosX, int nPosY) {
 	for(int px = 0; px < 4; px++)
 		for (int py = 0; py < 4; py++) {
@@ -78,8 +49,8 @@ bool DoesPieceFit(int nTetromino, int nRotation, int nPosX, int nPosY) {
 
 int main() {
 	// Create assets
-	//Ò»¸ö¶íÂÞË¹·½¿éÎª4*4
-	tetromino[0].append(L"..X.");	//L""±íÊ¾Ò»¸ö¿í×Ö·û´®£¬½«"...."Ìí¼Óµ½tetromino[0]µÄÄ©Î²
+	//ä¸€ä¸ªä¿„ç½—æ–¯æ–¹å—ä¸º4*4
+	tetromino[0].append(L"..X.");	//L""è¡¨ç¤ºä¸€ä¸ªå®½å­—ç¬¦ä¸²ï¼Œå°†"...."æ·»åŠ åˆ°tetromino[0]çš„æœ«å°¾
 	tetromino[0].append(L"..X.");
 	tetromino[0].append(L"..X.");
 	tetromino[0].append(L"..X.");
@@ -114,43 +85,43 @@ int main() {
 	tetromino[6].append(L".X..");
 	tetromino[6].append(L".X..");
 
-	//³õÊ¼»¯±ÈÈü³¡µØÊý×é
+	//åˆå§‹åŒ–æ¯”èµ›åœºåœ°æ•°ç»„
 	pField = new unsigned char[nFieldWidth * nFieldHeight];
 	for (int x = 0; x < nFieldWidth; x++)
 		for (int y = 0; y < nFieldHeight; y++)
-			pField[y * nFieldWidth + x] = (x == 0 || x == nFieldWidth - 1 || y == nFieldHeight - 1) ? 9 : 0;	//9±íÊ¾±ß½ç£¬0±íÊ¾¿Õ°×
+			pField[y * nFieldWidth + x] = (x == 0 || x == nFieldWidth - 1 || y == nFieldHeight - 1) ? 9 : 0;	//9è¡¨ç¤ºè¾¹ç•Œï¼Œ0è¡¨ç¤ºç©ºç™½
 
-	//´´½¨Ò»¸ö¿ØÖÆÌ¨ÆÁÄ»»º³åÇø£¬²¢½«ÆäÉèÖÃÎª»î¶¯ÆÁÄ»»º³åÇø
+	//åˆ›å»ºä¸€ä¸ªæŽ§åˆ¶å°å±å¹•ç¼“å†²åŒºï¼Œå¹¶å°†å…¶è®¾ç½®ä¸ºæ´»åŠ¨å±å¹•ç¼“å†²åŒº
 
-	//´´½¨ÁËÒ»¸ö¶¯Ì¬·ÖÅäµÄwchar_rÀàÐÍµÄÊý×é£¬ÓÃÓÚ±íÊ¾ÆÁÄ»ÉÏµÄ×Ö·û
+	//åˆ›å»ºäº†ä¸€ä¸ªåŠ¨æ€åˆ†é…çš„wchar_rç±»åž‹çš„æ•°ç»„ï¼Œç”¨äºŽè¡¨ç¤ºå±å¹•ä¸Šçš„å­—ç¬¦
 	wchar_t* screen = new wchar_t[nScreenWidth * nScreenHeight];	
 
-	//½«ÆÁÄ»Êý×éÖÐµÄÃ¿¸öÔªËØ³õÊ¼»¯Îª¿Õ¸ñ×Ö·û''
+	//å°†å±å¹•æ•°ç»„ä¸­çš„æ¯ä¸ªå…ƒç´ åˆå§‹åŒ–ä¸ºç©ºæ ¼å­—ç¬¦''
 	for (int i = 0; i < nScreenWidth * nScreenHeight; i++) screen[i] = L' ';
 
-	//´´½¨Ò»¸ö¿ØÖÆÌ¨ÆÁÄ»»º³åÇø£¬²¢½«Æä¾ä±ú´æ´¢ÔÚhConsole±äÁ¿ÖÐ
+	//åˆ›å»ºä¸€ä¸ªæŽ§åˆ¶å°å±å¹•ç¼“å†²åŒºï¼Œå¹¶å°†å…¶å¥æŸ„å­˜å‚¨åœ¨hConsoleå˜é‡ä¸­
 	HANDLE hConsole = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
 
-	//½«¸Õ¸Õ´´½¨µÄ¿ØÖÆÌ¨ÆÁÄ»»º³åÇøÉèÖÃÎª»î¶¯ÆÁÄ»»º³åÇø£¬ÊÇµÄºóÐøµÄÊä³ö½«ÔÚ¸Ã»º³åÇøÖÐ½øÐÐ
+	//å°†åˆšåˆšåˆ›å»ºçš„æŽ§åˆ¶å°å±å¹•ç¼“å†²åŒºè®¾ç½®ä¸ºæ´»åŠ¨å±å¹•ç¼“å†²åŒºï¼Œæ˜¯çš„åŽç»­çš„è¾“å‡ºå°†åœ¨è¯¥ç¼“å†²åŒºä¸­è¿›è¡Œ
 	SetConsoleActiveScreenBuffer(hConsole);	
 
-	//¶¨ÒåÁË±äÁ¿ÓÃÓÚ´æ´¢Ð´Èë»º³åÇøµÄ×Ö½ÚÊý
+	//å®šä¹‰äº†å˜é‡ç”¨äºŽå­˜å‚¨å†™å…¥ç¼“å†²åŒºçš„å­—èŠ‚æ•°
 	DWORD dwBytesWritten = 0;	
 
-	//¿ØÖÆÌ¨ÆÁÄ»»º³åÇøÊÇÒ»¸öÓÃÓÚ´æ´¢ÎÄ±¾ºÍ×Ö·ûµÄÄÚ´æÇøÓò£¬ËüÔÚ¿ØÖÆÌ¨´°¿ÚÖÐÏÔÊ¾ÎÄ±¾ºÍÍ¼ÐÎ¡£Ëü¿ÉÒÔ±»¿´×÷ÊÇÒ»¸ö¶þÎ¬×Ö·ûÊý×é£¬Ã¿¸ö×Ö·û¶¼ÓÐÒ»¸ö¶ÔÓ¦µÄÎ»ÖÃ£¨ÐÐºÍÁÐ£©
-	//»î¶¯ÆÁÄ»»º³åÇøÊÇÖ¸µ±Ç°ÕýÔÚ±»ÏÔÊ¾ÔÚ¿ØÖÆÌ¨´°¿ÚÖÐµÄÆÁÄ»»º³åÇø¡£ÔÚWindows²Ù×÷ÏµÍ³ÖÐ£¬¿ØÖÆÌ¨´°¿Ú¿ÉÒÔÓÐ¶à¸öÆÁÄ»»º³åÇø£¬µ«Ö»ÓÐÒ»¸ö»º³åÇø¿ÉÒÔ´¦ÓÚ»î¶¯×´Ì¬¡£»î¶¯ÆÁÄ»»º³åÇøÖÐµÄÄÚÈÝ½«±»ÏÔÊ¾ÔÚ¿ØÖÆÌ¨´°¿ÚÖÐ£¬ÓÃ»§¿ÉÒÔ¿´µ½ºÍÓëÆä½øÐÐ½»»¥¡£
+	//æŽ§åˆ¶å°å±å¹•ç¼“å†²åŒºæ˜¯ä¸€ä¸ªç”¨äºŽå­˜å‚¨æ–‡æœ¬å’Œå­—ç¬¦çš„å†…å­˜åŒºåŸŸï¼Œå®ƒåœ¨æŽ§åˆ¶å°çª—å£ä¸­æ˜¾ç¤ºæ–‡æœ¬å’Œå›¾å½¢ã€‚å®ƒå¯ä»¥è¢«çœ‹ä½œæ˜¯ä¸€ä¸ªäºŒç»´å­—ç¬¦æ•°ç»„ï¼Œæ¯ä¸ªå­—ç¬¦éƒ½æœ‰ä¸€ä¸ªå¯¹åº”çš„ä½ç½®ï¼ˆè¡Œå’Œåˆ—ï¼‰
+	//æ´»åŠ¨å±å¹•ç¼“å†²åŒºæ˜¯æŒ‡å½“å‰æ­£åœ¨è¢«æ˜¾ç¤ºåœ¨æŽ§åˆ¶å°çª—å£ä¸­çš„å±å¹•ç¼“å†²åŒºã€‚åœ¨Windowsæ“ä½œç³»ç»Ÿä¸­ï¼ŒæŽ§åˆ¶å°çª—å£å¯ä»¥æœ‰å¤šä¸ªå±å¹•ç¼“å†²åŒºï¼Œä½†åªæœ‰ä¸€ä¸ªç¼“å†²åŒºå¯ä»¥å¤„äºŽæ´»åŠ¨çŠ¶æ€ã€‚æ´»åŠ¨å±å¹•ç¼“å†²åŒºä¸­çš„å†…å®¹å°†è¢«æ˜¾ç¤ºåœ¨æŽ§åˆ¶å°çª—å£ä¸­ï¼Œç”¨æˆ·å¯ä»¥çœ‹åˆ°å’Œä¸Žå…¶è¿›è¡Œäº¤äº’ã€‚
 
-	//ÓÎÏ·Ñ­»·
+	//æ¸¸æˆå¾ªçŽ¯
 	// Game Logic Stuff
 	bool bGameOver = false;
 
-	int nCurrentPiece = 0;	//ÄÄ¸ö¶íÂÞË¹·½¿éÕýÔÚÏÂÂä
-	int nCurrentRotation = 0;	//Ðý×ªÁËÂð£¬Ðý×ªÁË¶àÉÙ½Ç¶È
+	int nCurrentPiece = 0;	//å“ªä¸ªä¿„ç½—æ–¯æ–¹å—æ­£åœ¨ä¸‹è½
+	int nCurrentRotation = 0;	//æ—‹è½¬äº†å—ï¼Œæ—‹è½¬äº†å¤šå°‘è§’åº¦
 	int nCurrentX = nFieldWidth / 2;	//location
 	int nCurrentY = 0;
 
 	bool bKey[4];
-	bool bRotateHold = false;	//¼à²âÓÃ»§ÊÇ·ñ°´×¡Ðý×ª°´Å¥
+	bool bRotateHold = false;	//ç›‘æµ‹ç”¨æˆ·æ˜¯å¦æŒ‰ä½æ—‹è½¬æŒ‰é’®
 
 	int nSpeed = 20;
 	int nSpeedCounter = 0;
@@ -168,7 +139,7 @@ int main() {
 
 		// Input
 		for (int k = 0; k < 4; k++)								
-			bKey[k] = (0x8000 & GetAsyncKeyState((unsigned char)("\x27\x25\x28Z"[k]))) != 0;	//R¡¢L¡¢D¡¢Z
+			bKey[k] = (0x8000 & GetAsyncKeyState((unsigned char)("\x27\x25\x28Z"[k]))) != 0;	//Rã€Lã€Dã€Z
 
 		// Game Logic	=======================================
 		//if (bKey[0] && DoesPieceFit(nCurrentPiece, nCurrentRotation, nCurrentX + 1, nCurrentY)) {nCurrentX = nCurrentX + 1;}
@@ -217,7 +188,7 @@ int main() {
 
 				nScore += 25;
 				if (!vLines.empty()) nScore += (1 << vLines.size()) * 100;
-				//½±Àø»úÖÆ£¬ÈÃÓÎÏ·¸üÉÏÍ·µÄÔ­Òò
+				//å¥–åŠ±æœºåˆ¶ï¼Œè®©æ¸¸æˆæ›´ä¸Šå¤´çš„åŽŸå› 
 
 
 				// choose next piece
@@ -238,7 +209,7 @@ int main() {
 		// Draw Field	=========================================
 		for (int x = 0; x < nFieldWidth; x++)
 			for (int y = 0; y < nFieldHeight; y++) {
-				//ifÓï¾äÓÃÀ´·ÀÖ¹»º³åÇøÒç³ö
+				//ifè¯­å¥ç”¨æ¥é˜²æ­¢ç¼“å†²åŒºæº¢å‡º
 				if (y + 2 < nScreenHeight && x + 2 < nScreenWidth) {
 					screen[(y + 2) * nScreenWidth + (x + 2)] = L" ABCDEFG=#"[pField[y * nFieldWidth + x]];
 				}
@@ -264,7 +235,7 @@ int main() {
 
 		if (!vLines.empty()) {
 			// Display Frame (cheekily to draw lines)
-			//´Ë´¦ÔÚ»æÖÆÍ¼ÐÎÊ±·ÅÖÃÁËÓÎÏ·Âß¼­£¬´ËÀà·½·¨²¢²»³£ÓÃ
+			//æ­¤å¤„åœ¨ç»˜åˆ¶å›¾å½¢æ—¶æ”¾ç½®äº†æ¸¸æˆé€»è¾‘ï¼Œæ­¤ç±»æ–¹æ³•å¹¶ä¸å¸¸ç”¨
 			WriteConsoleOutputCharacter(hConsole, screen, nScreenWidth * nScreenHeight, { 0,0 }, &dwBytesWritten);
 			this_thread::sleep_for(400ms);
 
@@ -281,12 +252,12 @@ int main() {
 		// Display Frame
 		WriteConsoleOutputCharacter(hConsole, screen, nScreenWidth * nScreenHeight, { 0,0 }, &dwBytesWritten);
 	}
-	/*½«×Ö·ûÊý×éscreenÖÐµÄ×Ö·ûÐ´Èëµ½¿ØÖÆÌ¨ÆÁÄ»»º³åÇøÖÐ¡£
-	* hConsoleÊÇÖ®Ç°´´½¨µÄ¿ØÖÆÌ¨ÆÁÄ»»º³åÇøµÄ¾ä±ú
-	* screenÊÇÒ»¸ö×Ö·ûÊý×é£¬°üº¬ÒªÐ´Èëµ½ÆÁÄ»»º³åÇøµÄ×Ö·û
-	* nScreenWidth*nScreenHeight±íÊ¾ÒªÐ´ÈëµÄ×Ö·ûÊýÁ¿£¬¼´ÆÁÄ»»º³åÇøµÄ´óÐ¡
-	* {0,0}ÊÇÒ»¸öCOORD½á¹¹£¬±íÊ¾Ð´Èë×Ö·ûµÄÆðÊ¼Î»ÖÃ£¬±íÊ¾´ÓÆÁÄ»»º³åÇøµÄ×óÉÏ½Ç¿ªÊ¼Ð´Èë
-	* &dwBytesWrittrnÊÇÒ»¸öÖ¸ÏòDWORDÀàÐÍµÄ±äÁ¿µÄÖ¸Õë£¬ÓÃÓÚ´æ´¢Êµ¼ÊÐ´ÈëµÄ×Ö·ûÊý
+	/*å°†å­—ç¬¦æ•°ç»„screenä¸­çš„å­—ç¬¦å†™å…¥åˆ°æŽ§åˆ¶å°å±å¹•ç¼“å†²åŒºä¸­ã€‚
+	* hConsoleæ˜¯ä¹‹å‰åˆ›å»ºçš„æŽ§åˆ¶å°å±å¹•ç¼“å†²åŒºçš„å¥æŸ„
+	* screenæ˜¯ä¸€ä¸ªå­—ç¬¦æ•°ç»„ï¼ŒåŒ…å«è¦å†™å…¥åˆ°å±å¹•ç¼“å†²åŒºçš„å­—ç¬¦
+	* nScreenWidth*nScreenHeightè¡¨ç¤ºè¦å†™å…¥çš„å­—ç¬¦æ•°é‡ï¼Œå³å±å¹•ç¼“å†²åŒºçš„å¤§å°
+	* {0,0}æ˜¯ä¸€ä¸ªCOORDç»“æž„ï¼Œè¡¨ç¤ºå†™å…¥å­—ç¬¦çš„èµ·å§‹ä½ç½®ï¼Œè¡¨ç¤ºä»Žå±å¹•ç¼“å†²åŒºçš„å·¦ä¸Šè§’å¼€å§‹å†™å…¥
+	* &dwBytesWrittrnæ˜¯ä¸€ä¸ªæŒ‡å‘DWORDç±»åž‹çš„å˜é‡çš„æŒ‡é’ˆï¼Œç”¨äºŽå­˜å‚¨å®žé™…å†™å…¥çš„å­—ç¬¦æ•°
 	*/
 
 	CloseHandle(hConsole);
